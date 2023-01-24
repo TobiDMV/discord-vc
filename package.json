@@ -4,7 +4,7 @@
   "description": "@discord/voice wrapper aimed to make Discord Voice Calls in javascript easy.",
   "main": "index.js",
   "scripts": {
-    "test": "poo"
+    "test": ""
   },
   "repository": {
     "type": "git",
