@@ -8,15 +8,13 @@ declare class VoiceCall implements Receiver {
     opts: opts;
     private connection_opts;
     private connection;
-    usersBeingRecorded: {
-        [userId: string]: GuildMember;
-    };
     private userListeners;
     constructor(opts: opts);
     private get receiver();
     setUsers(...users: GuildMember[]): VoiceCall;
     removeUsers(...users: GuildMember[]): VoiceCall;
-    receiveStreams(): Iterator<VoiceMessage>;
+    private getStreams;
+    receiveStreams(): AsyncGenerator<VoiceMessage>;
     destroy(): Promise<void>;
     record(): this;
 }

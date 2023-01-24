@@ -1,6 +1,6 @@
 import { opts, Receiver, Listener, ListenerOpts, VoiceMessageOpts } from "Receiver"
 import { joinVoiceChannel } from "@discordjs/voice"
-import { GuildMember, VoiceBasedChannel, User } from "discord.js"
+import { GuildMember, VoiceBasedChannel, User, Collection, Faces } from "discord.js"
 import { VoiceConnection, CreateVoiceConnectionOptions, JoinVoiceChannelOptions, VoiceReceiver, EndBehaviorType } from "@discordjs/voice"
 
 class VoiceMessage {
@@ -64,12 +64,10 @@ class VoiceCall implements Receiver {
     
     private channel: VoiceBasedChannel
     opts: opts
-
-
     private connection_opts: CreateVoiceConnectionOptions & JoinVoiceChannelOptions
     private connection: VoiceConnection
-    usersBeingRecorded: {[userId: string]: GuildMember}
-    private userListeners: {[userId: string]: UserListener}
+
+    private userListeners: Collection<string, UserListener>
 
     constructor(opts: opts) {
 
@@ -79,8 +77,8 @@ class VoiceCall implements Receiver {
             ...opts
         }
 
-        this.usersBeingRecorded = {}
-        this.userListeners = {}
+
+        this.userListeners = new Collection()
 
         /**
          * Fix this to actually check 
@@ -105,59 +103,66 @@ class VoiceCall implements Receiver {
 
     setUsers(...users: GuildMember[]): VoiceCall {
         for (let user of users) {
-            this.usersBeingRecorded[user.id] = this.opts.guild.members.cache.get(user.id)
+            
+            this.userListeners.set(user.id, new UserListener({
+                user: user,
+                receiver: this.receiver
+            }))
+
         }
         return this
     }
 
     removeUsers(...users: GuildMember[]): VoiceCall {
         for (let user of users) {
-            if (this.userListeners[user.id]) { delete this.userListeners[user.id] }
-            if (this.usersBeingRecorded[user.id]) { delete this.usersBeingRecorded[user.id] }
+            this.userListeners.delete(user.id)
         }
         return this
     }
 
-    *receiveStreams(): Iterator<VoiceMessage> {
-        while(true) {
-            for (let userKey of Object.keys(this.userListeners)) {
-                let listener = this.userListeners[userKey]
-                let checkLastMessage = true
-                while (checkLastMessage) {
-                    let lstMsg = listener.lastMessage
-                    if (!lstMsg) {
-                        checkLastMessage = false
-                    } else yield lstMsg
+    private async getStreams(): Promise<VoiceMessage[]> {
+        return new Promise((resolve, reject) => {
+            let listeners = 0
+            let messages: VoiceMessage[] = []
+            this.userListeners.forEach((listener, k, m) => {
+                let next = true
+
+                while (next) {
+                    let voice = listener.lastMessage
+                    if (voice) {
+                        messages.push(voice)
+                    } else { 
+                        next = false
+                    }
                 }
-            
+                
+                if (m.keys.length > listeners) { listeners++ }
+                else { resolve(messages) }
+            })
+
+        })
+    }
+
+    async *receiveStreams(): AsyncGenerator<VoiceMessage> {
+        while (true) {
+            for (let vm of (await this.getStreams())) {
+                yield vm
             }
         }
     }
 
-
     async destroy() {
         delete this.userListeners
-        delete this.usersBeingRecorded
         this.connection.destroy()
         return 
     }
 
     record() {
-        for (let id of Object.keys(this.usersBeingRecorded)) {
-            /**
-             * UserListener and Recording opts will hold key functionality for getting messages.
-             */
-            this.userListeners[id] = new UserListener({
-                user: this.usersBeingRecorded[id],
-                receiver: this.receiver
-            })
-
-            this.userListeners[id].listen()
-        }
-
+        this.userListeners.forEach(listener => {
+            listener.listen()
+        })
         return this
     }
 }
-
 
 export { VoiceCall }
