@@ -68,8 +68,8 @@ class VoiceCall implements Receiver {
 
     private connection_opts: CreateVoiceConnectionOptions & JoinVoiceChannelOptions
     private connection: VoiceConnection
-    usersBeingRecorded: {[userId: string]: GuildMember}
-    private userListeners: {[userId: string]: UserListener}
+    usersBeingRecorded: {[userId: string]: GuildMember} = {}
+    private userListeners: {[userId: string]: UserListener} = {}
 
     constructor(opts: opts) {
 
