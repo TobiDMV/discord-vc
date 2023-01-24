@@ -5,29 +5,58 @@ import { VoiceConnection, CreateVoiceConnectionOptions, JoinVoiceChannelOptions,
 
 class VoiceMessage {
     constructor(opts: VoiceMessageOpts) {
-
+        if (!opts.stream) {
+            
+        }
     }
 }
 
 class UserListener implements Listener {
     voice_messages: Array<VoiceMessage>
     opts: ListenerOpts
+    listening: boolean
 
     constructor(opts: ListenerOpts) {
         this.voice_messages = []
         this.opts = opts
+        this.listening = false
     }
 
     get isSpeaking() {
         return this.opts.receiver.speaking.users.has(this.opts.user.id)
     }
 
+    get lastMessage() {
+        if (this.voice_messages.length > 0) {
+            let msg = this.voice_messages[0]
+            this.voice_messages.shift()
+            return msg
+        } else return null
+    }
+
     get VoiceMessage() {
+        let stream = this.opts.receiver.subscribe(this.opts.user.id, { end: { behavior: EndBehaviorType.AfterSilence, duration: 100 } } )
         return new VoiceMessage({
-            stream: this.opts.receiver.subscribe(this.opts.user.id, { end: { behavior: EndBehaviorType.AfterSilence, duration: 100 } }),
+            stream: stream,
             user: this.opts.user,
             receiverData: this.opts.receiver.speaking.users.get(this.opts.user.id)
         })
+    }
+
+    async sleep(ms: number) {
+        return new Promise(resolve => {
+            setTimeout(resolve, ms)
+        })
+    }
+
+    async listen() {
+        this.listening = true
+
+        while (this.listening) {
+            if (this.isSpeaking) {
+                this.voice_messages.push(this.VoiceMessage)
+            }
+        }
     }
 }
 
@@ -50,6 +79,9 @@ class VoiceCall implements Receiver {
             ...opts
         }
 
+        /**
+         * Fix this to actually check 
+         */
         this.channel = opts.user.voice.channel
         
         this.connection_opts = {
@@ -84,11 +116,42 @@ class VoiceCall implements Receiver {
     }
 
     *receiveStreams() {
+        while(true) {
+            for (let userKey of Object.keys(this.userListeners)) {
+                let listener = this.userListeners[userKey]
+                let checkLastMessage = true
+                while (checkLastMessage) {
+                    let lstMsg = listener.lastMessage
+                    if (!lstMsg) {
+                        checkLastMessage = false
+                    } else yield lstMsg
+                }
+            
+            }
+        }
+    }
 
+
+    async destroy() {
+        delete this.userListeners
+        delete this.usersBeingRecorded
+        this.connection.destroy()
+        return 
     }
 
     record() {
-        
+        for (let id of Object.keys(this.usersBeingRecorded)) {
+            /**
+             * UserListener and Recording opts will hold key functionality for getting messages.
+             */
+            this.userListeners[id] = new UserListener({
+                user: this.usersBeingRecorded[id],
+                receiver: this.receiver
+            })
+
+            this.userListeners[id].listen()
+        }
+
         return this
     }
 }
