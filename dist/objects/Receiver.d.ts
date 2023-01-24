@@ -1,5 +1,8 @@
-import { opts, Receiver } from "Receiver";
+import { opts, Receiver, VoiceMessageOpts } from "Receiver";
 import { GuildMember } from "discord.js";
+declare class VoiceMessage {
+    constructor(opts: VoiceMessageOpts);
+}
 declare class VoiceCall implements Receiver {
     private channel;
     opts: opts;
@@ -13,7 +16,8 @@ declare class VoiceCall implements Receiver {
     private get receiver();
     setUsers(...users: GuildMember[]): VoiceCall;
     removeUsers(...users: GuildMember[]): VoiceCall;
-    receiveStreams(): Generator<never, void, unknown>;
+    receiveStreams(): Iterator<VoiceMessage>;
+    destroy(): Promise<void>;
     record(): this;
 }
 export { VoiceCall };

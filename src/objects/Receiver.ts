@@ -6,7 +6,7 @@ import { VoiceConnection, CreateVoiceConnectionOptions, JoinVoiceChannelOptions,
 class VoiceMessage {
     constructor(opts: VoiceMessageOpts) {
         if (!opts.stream) {
-            
+
         }
     }
 }
@@ -115,7 +115,7 @@ class VoiceCall implements Receiver {
         return this
     }
 
-    *receiveStreams() {
+    *receiveStreams(): Iterator<VoiceMessage> {
         while(true) {
             for (let userKey of Object.keys(this.userListeners)) {
                 let listener = this.userListeners[userKey]
