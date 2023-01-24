@@ -16,7 +16,13 @@
         },
         "allowJs": true,
         "declaration": true,
-        "emitDeclarationOnly": true,
-        "declarationMap": true
-    }
+        "declarationMap": true,
+    },
+    "include": [
+        "src/*"
+    ],
+    "exclude": [
+
+    ],
+    "compileOnSave": true
 }
