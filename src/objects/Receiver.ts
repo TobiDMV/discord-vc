@@ -5,9 +5,7 @@ import { VoiceConnection, CreateVoiceConnectionOptions, JoinVoiceChannelOptions,
 
 class VoiceMessage {
     constructor(opts: VoiceMessageOpts) {
-        if (!opts.stream) {
 
-        }
     }
 }
 
@@ -103,7 +101,6 @@ class VoiceCall implements Receiver {
 
     setUsers(...users: GuildMember[]): VoiceCall {
         for (let user of users) {
-            
             this.userListeners.set(user.id, new UserListener({
                 user: user,
                 receiver: this.receiver
