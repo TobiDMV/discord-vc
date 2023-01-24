@@ -63,12 +63,13 @@ class UserListener {
             });
         });
     }
-    listen() {
+    listen(callback) {
         return __awaiter(this, void 0, void 0, function* () {
             this.listening = true;
             while (this.listening) {
                 if (this.isSpeaking) {
-                    this.voice_messages.push(this.VoiceMessage);
+                    callback(this.VoiceMessage);
+                    yield this.sleep(10);
                 }
             }
         });
@@ -150,9 +151,16 @@ class VoiceCall {
     }
     record() {
         this.userListeners.forEach(listener => {
-            listener.listen();
+            //            listener.listen()
         });
         return this;
+    }
+    listen(callback) {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.userListeners.forEach(listener => {
+                listener.listen(callback);
+            });
+        });
     }
 }
 exports.VoiceCall = VoiceCall;

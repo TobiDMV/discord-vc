@@ -17,6 +17,7 @@ declare class VoiceCall implements Receiver {
     receiveStreams(): AsyncGenerator<VoiceMessage>;
     destroy(): Promise<void>;
     record(): this;
+    listen(callback: (audio: VoiceMessage) => void): Promise<void>;
 }
 export { VoiceCall };
 //# sourceMappingURL=Receiver.d.ts.map
