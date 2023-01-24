@@ -1,6 +1,6 @@
 {
   "name": "discord-vc",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "@discord/voice wrapper aimed to make Discord Voice Calls in javascript easy.",
   "main": "./dist",
   "scripts": {
