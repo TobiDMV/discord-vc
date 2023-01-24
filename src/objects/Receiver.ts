@@ -1,5 +1,5 @@
 import { opts, Receiver, Listener, ListenerOpts, VoiceMessageOpts } from "Receiver"
-import { joinVoiceChannel } from "@discordjs/voice"
+import { AudioReceiveStream, joinVoiceChannel } from "@discordjs/voice"
 import { GuildMember, VoiceBasedChannel, User, Collection, Faces } from "discord.js"
 import { VoiceConnection, CreateVoiceConnectionOptions, JoinVoiceChannelOptions, VoiceReceiver, EndBehaviorType } from "@discordjs/voice"
 
@@ -49,12 +49,13 @@ class UserListener implements Listener {
         })
     }
 
-    async listen() {
+    async listen(callback: (audio: VoiceMessage) => void) {
         this.listening = true
 
         while (this.listening) {
             if (this.isSpeaking) {
-                this.voice_messages.push(this.VoiceMessage)
+                callback(this.VoiceMessage)
+                await this.sleep(10)
             }
         }
     }
@@ -155,10 +156,16 @@ class VoiceCall implements Receiver {
 
     record() {
         this.userListeners.forEach(listener => {
-            listener.listen()
+//            listener.listen()
         })
         return this
     }
+
+    async listen(callback: (audio: VoiceMessage) => void) {
+        this.userListeners.forEach(listener => {
+            listener.listen(callback)
+        })
+    } 
 }
 
 export { VoiceCall }
