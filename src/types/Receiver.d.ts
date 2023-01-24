@@ -15,7 +15,6 @@ declare interface Listener {
 }
 
 declare interface ListenerOpts {
-    receiver: VoiceReceiver,
     user: GuildMember
 }
 

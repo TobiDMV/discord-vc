@@ -13,15 +13,17 @@ class UserListener implements Listener {
     voice_messages: Array<VoiceMessage>
     opts: ListenerOpts
     listening: boolean
+    connection: VoiceConnection
 
-    constructor(opts: ListenerOpts) {
+    constructor(connection: VoiceConnection, opts: ListenerOpts) {
         this.voice_messages = []
         this.opts = opts
         this.listening = false
+        this.connection = connection
     }
 
     get isSpeaking() {
-        return this.opts.receiver.speaking.users.has(this.opts.user.id)
+        return this.connection.receiver.speaking.users.has(this.opts.user.id)
     }
 
     get lastMessage() {
@@ -33,11 +35,11 @@ class UserListener implements Listener {
     }
 
     get VoiceMessage() {
-        let stream = this.opts.receiver.subscribe(this.opts.user.id, { end: { behavior: EndBehaviorType.AfterSilence, duration: 100 } } )
+        let stream = this.connection.receiver.subscribe(this.opts.user.id, { end: { behavior: EndBehaviorType.AfterSilence, duration: 100 } } )
         return new VoiceMessage({
             stream: stream,
             user: this.opts.user,
-            receiverData: this.opts.receiver.speaking.users.get(this.opts.user.id)
+            receiverData: this.connection.receiver.speaking.users.get(this.opts.user.id)
         })
     }
 
@@ -101,10 +103,7 @@ class VoiceCall implements Receiver {
 
     setUsers(...users: GuildMember[]): VoiceCall {
         for (let user of users) {
-            this.userListeners.set(user.id, new UserListener({
-                user: user,
-                receiver: this.receiver
-            }))
+            this.userListeners.set(user.id, new UserListener(this.connection, { user: user }))
 
         }
         return this
