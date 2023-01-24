@@ -1,13 +1,22 @@
 import { GuildMember, Guild, VoiceBasedChannel } from "discord.js"
-import { VoiceConnection } from "@discordjs/voice"
+import { VoiceConnection, VoiceReceiver, AudioReceiveStream } from "@discordjs/voice"
+
+declare interface VoiceMessageOpts {
+    stream: AudioReceiveStream,
+    user: GuildMember
+    receiverData?: any
+}
 
 declare interface Receiver {
-    channel: VoiceBasedChannel,
-
 }
 
 declare interface Listener {
-    
+
+}
+
+declare interface ListenerOpts {
+    receiver: VoiceReceiver,
+    user: GuildMember
 }
 
 declare interface opts {
