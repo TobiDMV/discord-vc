@@ -1,0 +1,19 @@
+{
+  "name": "discord-vc",
+  "version": "1.0.1",
+  "description": "@discord/voice wrapper aimed to make Discord Voice Calls in javascript easy.",
+  "main": "index.js",
+  "scripts": {
+    "test": "poo"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TobiDMV/discord-vc.git"
+  },
+  "author": "tobi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/TobiDMV/discord-vc/issues"
+  },
+  "homepage": "https://github.com/TobiDMV/discord-vc#readme"
+}
