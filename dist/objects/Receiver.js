@@ -30,14 +30,14 @@ class VoiceMessage {
     }
 }
 class UserListener {
-    constructor(connection, opts) {
+    constructor(vc, opts) {
         this.voice_messages = [];
         this.opts = opts;
         this.listening = false;
-        this.connection = connection;
+        this.vc = vc;
     }
     get isSpeaking() {
-        return this.connection.receiver.speaking.users.has(this.opts.user.id);
+        return this.vc.connection.receiver.speaking.users.has(this.opts.user.id);
     }
     get lastMessage() {
         if (this.voice_messages.length > 0) {
@@ -49,11 +49,11 @@ class UserListener {
             return null;
     }
     get VoiceMessage() {
-        let stream = this.connection.receiver.subscribe(this.opts.user.id, { end: { behavior: voice_2.EndBehaviorType.AfterSilence, duration: 100 } });
+        let stream = this.vc.connection.receiver.subscribe(this.opts.user.id, { end: { behavior: voice_2.EndBehaviorType.AfterSilence, duration: 100 } });
         return new VoiceMessage({
             stream: stream,
             user: this.opts.user,
-            receiverData: this.connection.receiver.speaking.users.get(this.opts.user.id)
+            receiverData: this.vc.connection.receiver.speaking.users.get(this.opts.user.id)
         });
     }
     sleep(ms) {
@@ -97,7 +97,7 @@ class VoiceCall {
     }
     setUsers(...users) {
         for (let user of users) {
-            this.userListeners.set(user.id, new UserListener(this.connection, { user: user }));
+            this.userListeners.set(user.id, new UserListener(this, { user: user }));
         }
         return this;
     }

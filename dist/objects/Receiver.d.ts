@@ -1,5 +1,6 @@
 import { opts, Receiver, VoiceMessageOpts } from "Receiver";
 import { GuildMember } from "discord.js";
+import { VoiceConnection } from "@discordjs/voice";
 declare class VoiceMessage {
     constructor(opts: VoiceMessageOpts);
 }
@@ -7,7 +8,7 @@ declare class VoiceCall implements Receiver {
     private channel;
     opts: opts;
     private connection_opts;
-    private connection;
+    connection: VoiceConnection;
     private userListeners;
     constructor(opts: opts);
     private get receiver();

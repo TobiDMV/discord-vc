@@ -13,17 +13,17 @@ class UserListener implements Listener {
     voice_messages: Array<VoiceMessage>
     opts: ListenerOpts
     listening: boolean
-    connection: VoiceConnection
+    vc: VoiceCall
 
-    constructor(connection: VoiceConnection, opts: ListenerOpts) {
+    constructor(vc: VoiceCall, opts: ListenerOpts) {
         this.voice_messages = []
         this.opts = opts
         this.listening = false
-        this.connection = connection
+        this.vc = vc
     }
 
     get isSpeaking() {
-        return this.connection.receiver.speaking.users.has(this.opts.user.id)
+        return this.vc.connection.receiver.speaking.users.has(this.opts.user.id)
     }
 
     get lastMessage() {
@@ -35,11 +35,11 @@ class UserListener implements Listener {
     }
 
     get VoiceMessage() {
-        let stream = this.connection.receiver.subscribe(this.opts.user.id, { end: { behavior: EndBehaviorType.AfterSilence, duration: 100 } } )
+        let stream = this.vc.connection.receiver.subscribe(this.opts.user.id, { end: { behavior: EndBehaviorType.AfterSilence, duration: 100 } } )
         return new VoiceMessage({
             stream: stream,
             user: this.opts.user,
-            receiverData: this.connection.receiver.speaking.users.get(this.opts.user.id)
+            receiverData: this.vc.connection.receiver.speaking.users.get(this.opts.user.id)
         })
     }
 
@@ -66,7 +66,7 @@ class VoiceCall implements Receiver {
     private channel: VoiceBasedChannel
     opts: opts
     private connection_opts: CreateVoiceConnectionOptions & JoinVoiceChannelOptions
-    private connection: VoiceConnection
+    connection: VoiceConnection
 
     private userListeners: Collection<string, UserListener>
 
@@ -104,7 +104,7 @@ class VoiceCall implements Receiver {
 
     setUsers(...users: GuildMember[]): VoiceCall {
         for (let user of users) {
-            this.userListeners.set(user.id, new UserListener(this.connection, { user: user }))
+            this.userListeners.set(user.id, new UserListener(this, { user: user }))
 
         }
         return this
