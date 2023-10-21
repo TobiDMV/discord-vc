@@ -1,3 +1,6 @@
+# ABANDONED
+This contains some code that was intended to route callframes into one location, so that it would be easy to query them. It never quite worked correctly and i have since abandoned the project to learn rust. I may come back to this in the future but for now it is being archived.
+
 # Discord-vc
 
 Discord-vc is a wrapper of the @discord/voice library. The intended purpose is to make it easier for people who are new to working with Discord Voice Chat features in node.js.
